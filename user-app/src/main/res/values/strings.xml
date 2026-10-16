@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Remote Hotspot User</string>
+    <string name="accessibility_service_description">
+        Allows the Remote Hotspot Controller to turn Mobile Hotspot on or off when requested by the Admin app.
+        It only acts when the screen is on and uses multiple fallback methods for maximum reliability across different phone brands.
+    </string>
+</resources>
