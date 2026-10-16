@@ -1,0 +1,51 @@
+name: Build APKs
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Grant execute permission for gradlew
+        run: |
+          if [ ! -f gradlew ]; then
+            gradle wrapper --gradle-version 8.7 || true
+          fi
+          chmod +x gradlew 2>/dev/null || true
+
+      - name: Build Admin + User debug APKs
+        run: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+          if [ -x ./gradlew ]; then
+            ./gradlew :admin-app:assembleDebug :user-app:assembleDebug --no-daemon --stacktrace
+          else
+            gradle :admin-app:assembleDebug :user-app:assembleDebug --no-daemon --stacktrace
+          fi
+
+      - name: Upload Admin APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-apk
+          path: admin-app/build/outputs/apk/debug/*.apk
+          if-no-files-found: warn
+
+      - name: Upload User APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: user-apk
+          path: user-app/build/outputs/apk/debug/*.apk
+          if-no-files-found: warn
